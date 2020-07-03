@@ -1,23 +1,8 @@
 #include "Key.h"
 
-Key::Key(int _pin, int _mode, int _button, ...){
+Key::Key(int _pin){
   pinMode(_pin, INPUT_PULLUP);
   pin = _pin;
-  mode = _mode;
-
-  button = _button;
-
-  va_list arguments; 
-  va_start ( arguments, _button);
-  if (_mode == MACRO){
-    modifiers = va_arg (arguments, int);
-    if (modifiers > MAX_ACCEPTED_MODIFIERS) modifiers = MAX_ACCEPTED_MODIFIERS;
-    int i = modifiers;
-    while(i-->0){
-      modifier[i] = va_arg (arguments, int);
-    }
-  }
-  va_end (arguments);
 
   stat = false;
 
@@ -25,12 +10,34 @@ Key::Key(int _pin, int _mode, int _button, ...){
   prev = 1;
 }
 
+void Key::set(int _mode){
+  mode = _mode;
+}
 
-void Key::poll(){
+void Key::bind(int _button, ...){
+  button = _button;
+
+  va_list arguments; 
+  va_start ( arguments, _button);
+  if (mode == MULTI){
+    modifiers = va_arg (arguments, int);
+    if(modifiers > MAX_ACCEPTED_MODIFIERS) modifiers = MAX_ACCEPTED_MODIFIERS;
+    int i = modifiers;
+    while(i-->0){
+      modifier[i] = va_arg (arguments, int);
+    }
+  }
+  va_end (arguments);
+}
+
+int Key::poll(){
   prev = curr;
   curr = digitalRead(pin);
   switch(mode){
-    case MACRO:
+    case READ:
+      if(!curr && prev) return 1;
+      break;
+    case MULTI:
       if(!curr && prev){
         int t = modifiers;
         while(t-->0)Keyboard.press(modifier[t]);
@@ -56,9 +63,18 @@ void Key::poll(){
         }
       }
       break;
+    case RELEASE:
+      if(curr && !prev){
+        Keyboard.write(button);
+        return 1;
+      }
+      break;
+    case PRESS:
     default:
       if(!curr && prev){
         Keyboard.write(button);
+        return 1;
       }
   }
+  return 0;
 }
