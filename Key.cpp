@@ -11,6 +11,7 @@ Key::Key(int _pin, int _mode, int _button, ...){
   va_start ( arguments, _button);
   if (_mode == MACRO){
     modifiers = va_arg (arguments, int);
+    if (modifiers > MAX_ACCEPTED_MODIFIERS) modifiers = MAX_ACCEPTED_MODIFIERS;
     int i = modifiers;
     while(i-->0){
       modifier[i] = va_arg (arguments, int);
