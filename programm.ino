@@ -1,8 +1,8 @@
 #include "Key.h"
 
-Key left   = Key(2, KEY_UP_ARROW, HOLD);
-Key center = Key(6, KEY_RIGHT_SHIFT, PRESS);
-Key right  = Key(9, KEY_DOWN_ARROW, HOLD);
+Key left   = Key(2, MACRO, 'z', 1, KEY_LEFT_CTRL);
+Key center = Key(6, MACRO, 'c', 1, KEY_LEFT_CTRL);
+Key right  = Key(9, MACRO, 'v', 1, KEY_LEFT_CTRL);
 
 void setup(){
   Keyboard.begin();
